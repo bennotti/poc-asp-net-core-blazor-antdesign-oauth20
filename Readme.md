@@ -1,0 +1,1 @@
+﻿Referencia: https://dev.to/mohammedahmed/build-your-own-oauth-20-server-and-openid-connect-provider-in-aspnet-core-60-1g1m
