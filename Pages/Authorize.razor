@@ -1,0 +1,112 @@
+﻿@page "/auth/realms/{realmName}/authorize"
+@inject IAuthorizeResultService _authorizeResultService
+@inject ICodeStoreService _codeStoreService
+@inject IHttpContextAccessor _httpContextAccessor
+@inject NavigationManager NavigationManager
+@using PocAspNetCoreBlazorAntDesign.OauthRequest
+@using PocAspNetCoreBlazorAntDesign.OauthResponse;
+
+@code {
+    [Parameter]
+    public string? realmName { get; set; }
+    [QueryStringParameter]
+    public string response_type { get; set; }
+    [QueryStringParameter]
+    public string client_id { get; set; }
+    [QueryStringParameter]
+    public string scope { get; set; }
+    [QueryStringParameter]
+    public string redirect_uri { get; set; }
+    [QueryStringParameter]
+    public string state { get; set; }
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        this.SetParametersFromQueryString(NavigationManager);
+
+        return base.SetParametersAsync(parameters);
+    }
+
+    OpenIdConnectLoginRequest model;
+    protected override void OnInitialized()
+    {
+        realmName = realmName ?? "master";
+        AuthorizeResponse result = _authorizeResultService.AuthorizeRequest(_httpContextAccessor, new AuthorizationRequest {
+            response_type = response_type,
+            client_id = client_id,
+            scope = scope,
+            redirect_uri = redirect_uri,
+            state = state
+        });
+        model = new OpenIdConnectLoginRequest
+            {
+                RedirectUri = result.RedirectUri,
+                Code = result.Code,
+                RequestedScopes = result.RequestedScopes,
+                Nonce = result.Nonce
+            };
+    }
+
+    public class Model
+    {
+        [Required]
+        public string Username { get; set; }
+        [Required]
+        public string Password { get; set; }
+        public bool RememberMe { get; set; } = true;
+    }
+
+    private Model model2 = new Model();
+
+    bool loading = false;
+
+    void toggle(bool value) => loading = value;
+
+    private void OnFinish(EditContext editContext)
+    {
+        Console.WriteLine($"Success:{JsonSerializer.Serialize(model2)}");
+
+
+        var result = _codeStoreService.UpdatedClientDataByCode(model.Code, model.RequestedScopes,
+                model2.Username, nonce: model.Nonce);
+        if (result != null)
+        {
+
+            model.RedirectUri = model.RedirectUri + "&code=" + model.Code;
+            NavigationManager.NavigateTo(model.RedirectUri);
+        }
+    }
+
+    private void OnFinishFailed(EditContext editContext)
+    {
+        Console.WriteLine($"Failed:{JsonSerializer.Serialize(model2)}");
+    }
+}
+
+<Layout Class="layout">
+    <Content Style="padding: 0 50px;">
+        <div class="site-layout-content">
+            <Form Loading="loading" Model="@model2"
+                  LabelColSpan="8"
+                  WrapperColSpan="16"
+                  OnFinish="OnFinish"
+                  OnFinishFailed="OnFinishFailed">
+                <FormItem Label="Username">
+                    <Input @bind-Value="@context.Username" />
+                </FormItem>
+                <FormItem Label="Password">
+                    <InputPassword @bind-Value="@context.Password" />
+                </FormItem>
+                <FormItem WrapperColOffset="8" WrapperColSpan="16">
+                    <Checkbox @bind-Value="context.RememberMe">Remember me</Checkbox>
+                </FormItem>
+                <FormItem WrapperColOffset="8" WrapperColSpan="16">
+                    <Button Type="@ButtonType.Primary" HtmlType="submit">
+                        Submit
+                    </Button>
+                </FormItem>
+            </Form>
+        </div>
+    </Content>
+    <Footer Style="text-align: center; ">Ant Design ©2018 Created by Ant UED</Footer>
+</Layout>
