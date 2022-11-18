@@ -3,6 +3,7 @@
 @inject ICodeStoreService _codeStoreService
 @inject IHttpContextAccessor _httpContextAccessor
 @inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @using PocAspNetCoreBlazorAntDesign.OauthRequest
 @using PocAspNetCoreBlazorAntDesign.OauthResponse;
 
@@ -62,10 +63,11 @@
 
     void toggle(bool value) => loading = value;
 
-    private void OnFinish(EditContext editContext)
+    private async void OnFinish(EditContext editContext)
     {
         Console.WriteLine($"Success:{JsonSerializer.Serialize(model2)}");
-
+        await localStorage.ClearAsync();
+        //await localStorage.SetItemAsync("ID", "20019");
 
         var result = _codeStoreService.UpdatedClientDataByCode(model.Code, model.RequestedScopes,
                 model2.Username, nonce: model.Nonce);
@@ -73,6 +75,7 @@
         {
 
             model.RedirectUri = model.RedirectUri + "&code=" + model.Code;
+            //await localStorage.SetItemAsync("RedirectUri", model.RedirectUri);
             NavigationManager.NavigateTo(model.RedirectUri);
         }
     }
@@ -84,7 +87,7 @@
 }
 
 <Layout Class="layout">
-    <Content Style="padding: 0 50px;">
+    <Content Style="padding: 50px;">
         <div class="site-layout-content">
             <Form Loading="loading" Model="@model2"
                   LabelColSpan="8"

@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using PocAspNetCoreBlazorAntDesign.Services;
 using PocAspNetCoreBlazorAntDesign.Services.CodeServce;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
