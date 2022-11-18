@@ -1,7 +1,9 @@
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
+using PocAspNetCoreBlazorAntDesign.Common;
 using PocAspNetCoreBlazorAntDesign.Services;
 using PocAspNetCoreBlazorAntDesign.Services.CodeServce;
 
@@ -22,6 +24,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddAntDesign();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<CustomAuthenticationStateProvider>());
 builder.Services.AddScoped<IAuthorizeResultService, AuthorizeResultService>();
 builder.Services.AddSingleton<ICodeStoreService, CodeStoreService>();
 var app = builder.Build();

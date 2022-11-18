@@ -1,0 +1,10 @@
+﻿@attribute [AllowAnonymous]
+@inject NavigationManager _navigationManager
+
+<div class="loader loader-bouncing"><span>Redirecting...</span></div>
+@code {
+    protected override void OnInitialized()
+    {
+        _navigationManager.NavigateTo("/auth/realms/master/authorize");
+    }
+}

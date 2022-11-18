@@ -1,4 +1,5 @@
 ﻿@page "/auth/realms/{realmName}/authorize"
+@attribute [AllowAnonymous]
 @inject IAuthorizeResultService _authorizeResultService
 @inject ICodeStoreService _codeStoreService
 @inject IHttpContextAccessor _httpContextAccessor
