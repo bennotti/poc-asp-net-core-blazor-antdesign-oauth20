@@ -1,17 +1,18 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-			<NotAuthorized>
-				<RedirectToLogin />
-			</NotAuthorized>
-		</AuthorizeRouteView>
-    </Found>
-    <NotFound>
-		<CascadingAuthenticationState>
+﻿@using PocAspNetCoreBlazorAntDesign.Pages
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+			    <NotAuthorized>
+				    <RedirectToLogin />
+			    </NotAuthorized>
+		    </AuthorizeRouteView>
+        </Found>
+        <NotFound>
             <LayoutView Layout="@typeof(MainLayout)">
                 <Result Status="404" />
             </LayoutView>
-        </CascadingAuthenticationState>
-    </NotFound>
-</Router>
-<AntContainer />
+        </NotFound>
+    </Router>
+    <AntContainer />
+</CascadingAuthenticationState>

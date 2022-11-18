@@ -5,6 +5,7 @@
 @inject IHttpContextAccessor _httpContextAccessor
 @inject NavigationManager NavigationManager
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject CustomAuthenticationStateProvider AuthStateProvider;
 @using PocAspNetCoreBlazorAntDesign.OauthRequest
 @using PocAspNetCoreBlazorAntDesign.OauthResponse;
 
@@ -32,6 +33,11 @@
     OpenIdConnectLoginRequest model;
     protected override void OnInitialized()
     {
+        if (string.IsNullOrEmpty(client_id) || string.IsNullOrEmpty(scope))
+        {
+            NavigationManager.NavigateTo("/error");
+            return;
+        }
         realmName = realmName ?? "master";
         AuthorizeResponse result = _authorizeResultService.AuthorizeRequest(_httpContextAccessor, new AuthorizationRequest {
             response_type = response_type,
@@ -68,6 +74,7 @@
     {
         Console.WriteLine($"Success:{JsonSerializer.Serialize(model2)}");
         await localStorage.ClearAsync();
+        await AuthStateProvider.Login("asd");
         //await localStorage.SetItemAsync("ID", "20019");
 
         var result = _codeStoreService.UpdatedClientDataByCode(model.Code, model.RequestedScopes,
@@ -77,7 +84,8 @@
 
             model.RedirectUri = model.RedirectUri + "&code=" + model.Code;
             //await localStorage.SetItemAsync("RedirectUri", model.RedirectUri);
-            NavigationManager.NavigateTo(model.RedirectUri);
+            //NavigationManager.NavigateTo(model.RedirectUri);
+            NavigationManager.NavigateTo("/");
         }
     }
 

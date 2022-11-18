@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using System.Security.Claims;
 
 namespace PocAspNetCoreBlazorAntDesign.Common
 {
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        public CustomAuthenticationStateProvider()
+        private readonly ProtectedSessionStorage _protectedSessionStore;
+        public CustomAuthenticationStateProvider(ProtectedSessionStorage protectedSessionStore)
         {
+            _protectedSessionStore = protectedSessionStore;
         }
 
         /// <summary>
@@ -19,7 +22,7 @@ namespace PocAspNetCoreBlazorAntDesign.Common
         {
             //Again, this is what I'm doing, but you could do/store/save anything as part of this process
             //await SecureStorage.SetAsync("accounttoken", token);
-
+            await _protectedSessionStore.SetAsync("accounttoken", token);
             //Providing the current identity ifnormation
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
@@ -32,6 +35,7 @@ namespace PocAspNetCoreBlazorAntDesign.Common
         public async Task Logout()
         {
             await Task.CompletedTask;
+            await _protectedSessionStore.DeleteAsync("accounttoken");
             //SecureStorage.Remove("accounttoken");
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
@@ -46,13 +50,13 @@ namespace PocAspNetCoreBlazorAntDesign.Common
         {
             try
             {
-                //var userInfo = await SecureStorage.GetAsync("accounttoken");
-                //if (userInfo != null)
-                //{
-                //    var claims = new[] { new Claim(ClaimTypes.Name, "Sample User") };
-                //    var identity = new ClaimsIdentity(claims, "Custom authentication");
-                //    return new AuthenticationState(new ClaimsPrincipal(identity));
-                //}
+                var userInfo = await _protectedSessionStore.GetAsync<string>("accounttoken");
+                if (userInfo.Success && userInfo.Value != null)
+                {
+                    var claims = new[] { new Claim(ClaimTypes.Name, "Sample User") };
+                    var identity = new ClaimsIdentity(claims, "Custom authentication");
+                    return new AuthenticationState(new ClaimsPrincipal(identity));
+                }
             }
             catch (Exception ex)
             {

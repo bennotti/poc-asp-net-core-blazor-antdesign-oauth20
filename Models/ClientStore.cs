@@ -14,6 +14,17 @@
                 IsActive = true,
                 ClientUri = "http://localhost:3000",
                 RedirectUri = "http://localhost:3000/response"
+            },
+            new Client
+            {
+                ClientName = "admin",
+                ClientId = "2",
+                ClientSecret = "123456789",
+                AllowedScopes = new[]{ "openid", "profile"},
+                GrantType = GrantTypes.Code,
+                IsActive = true,
+                ClientUri = "http://localhost:7261",
+                RedirectUri = "http://localhost:7261"
             }
         };
     }
